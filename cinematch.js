@@ -8,7 +8,7 @@ do {
         idade: Number(prompt("Informe sua idade: ")), 
         generosFavoritos: prompt("Informe os gêneros que você mais gosta.(Separe por vírgula, ex: Ação, Comédia, Terror)(*): ").split(',').map((g) => g.trim())  
     };
-    // IF TERNÁRIO
+    // IF TERNÁRIO COM MÉTODO DE ARRAY EVERY PARA VALIDAR CAMPOS OBRIGATÓRIOS
     //console.log(typeof usuario.nome.trim());
     campoObrigatorio = ((usuario.nome.trim() === '' || usuario.generosFavoritos.every(g => g === '')) ?  console.log(`Obrigatório preencher seu nome e ao menos um gênero que gosta!`) : 'OK');   
 } while( campoObrigatorio != 'OK');
