@@ -125,3 +125,61 @@ const catalogo = [
 ];
 
 console.log(catalogo)
+
+// RF03 - CALCULAR COMPATIBILIDADE CONTEUDO
+
+    // ARRAY DISTINTO DE GENEROS DE TODO O CATALOGO
+        const generosDistintos = catalogo.reduce((agrupador, item) => {
+            item.generos.forEach(genero => {
+                if (!agrupador.includes(genero)) {
+                    agrupador.push(genero);
+                }
+            });
+            return agrupador;
+        },[]);
+    
+    // NORMALIZANDO GENERO USUARIO PARA COMPATIBILIDADE.
+        //console.log(usuario);
+        const generosUsuario = (usuario.generosFavoritos).map((item) => {
+            return item.toUpperCase();
+        });
+
+    // FUNCAO COMPATIBILIDADE 
+    const compatilibidade = () => {  
+    // ARRAY DA COMPATIBILIDADE DO CONTEUDO
+        const compatilibidadeConteudo = catalogo.map((item) => {
+            
+            // Generos em Comum
+            const generosComum = item.generos.filter((genero) => {
+                return generosUsuario.includes(genero.toUpperCase());
+            });
+            // Generos inexplorados
+            const generosNaoExplorados = item.generos.filter((genero) => {
+                return !generosUsuario.includes(genero.toUpperCase());
+            });
+            // Percentual compatibilidade
+            const percentualCompatibilidade = Number((generosComum.length / item.generos.length) * 100).toFixed(2);
+
+            // RF04 - CLASSIFICAR A COMPATIBILIDADE
+            let classificacao;
+            
+            if (percentualCompatibilidade >= 0 && percentualCompatibilidade <= 49) {
+                classificacao = "Baixa afinidade";
+            }else if (percentualCompatibilidade >= 50 && percentualCompatibilidade <= 79) {
+                classificacao = "Média afinidade";
+            } else {
+                classificacao = "Alta afinidade";
+            };
+            //console.log(generosComum.length);
+            return {
+                titulo: item.titulo,
+                tipo: item.tipo,
+                compatibilidade: `${percentualCompatibilidade}%`,
+                generosComum: generosComum.length === 0 ? "Não" : generosComum,
+                generosNaoExplorados: generosNaoExplorados.length === 0 ? "Não" : generosNaoExplorados,
+                classificacao
+            };
+        });
+        console.log(compatilibidadeConteudo);
+    };
+    compatilibidade();
