@@ -112,14 +112,79 @@ const prompt = require("prompt-sync")();
             };
             //console.log(generosComum.length);
             return {
+                id: item.id,
                 titulo: item.titulo,
                 tipo: item.tipo,
-                compatibilidade: `${percentualCompatibilidade}%`,
+                compatibilidade: percentualCompatibilidade,
+                numeroGeneros: item.generos.length,
                 generosComum: generosComum.length === 0 ? "Não" : generosComum,
                 generosNaoExplorados: generosNaoExplorados.length === 0 ? "Não" : generosNaoExplorados,
                 classificacao
             };
         });
-        console.log(compatilibidadeConteudo);
+        //console.log(compatilibidadeConteudo);
+        return compatilibidadeConteudo;
     };
-    compatilibidade();
+    //compatilibidade();
+    // MOSTRAR O RESULTADO FORMATADO
+    const relatorioCompatibilidade = () => {
+        console.log(`============= REL. COMPATIBILIDADE CONTEÚDO =============`);
+        console.log(`De: ${usuario.nome.toUpperCase()}\n=========================================================`);
+        const listarCompatibilidade = compatilibidade().forEach((item, i) => {
+                console.log(`Título: ${item.titulo}`);
+                console.log(`Tipo: ${item.tipo}`);
+                console.log(`Compatibilidade: ${item.compatibilidade.toFixed(2)}%`);
+                console.log(`Gêneros em comum: ${item.generosComum}`);
+                console.log(`Gêneros não explorados: ${item.generosNaoExplorados}`);
+                console.log(`Classificação: ${item.classificacao}`);
+                console.log(`---------------------------------------------------------`);
+        });
+        return listarCompatibilidade;
+    };
+    //relatorioCompatibilidade();
+    
+// RF05 - LISTAR HABILIDADES FALTANTES
+    const relatorioNaoExplorados = () => {
+        console.log(`=============== REL. GÊNEROS NÃO EXPLORADOS ===============`);
+        console.log(`De: ${usuario.nome.toUpperCase()}\n===========================================================`);
+        const listarNaoExplorados = compatilibidade().forEach((item) => {
+            if (item.generosNaoExplorados != 'Não') {
+                console.log(`Para o título "${item.titulo}" você ainda não explorou:`);
+                for (let i = 0; i < item.generosNaoExplorados.length; i++) {
+                    console.log(`- ${item.generosNaoExplorados[i]}`);
+                };
+                console.log(`-----------------------------------------------------------`);     
+            };
+        });
+        return listarNaoExplorados;
+    };
+    //relatorioNaoExplorados();
+
+//RF06 - ENCONTRAR VAGA COM MAIOR COMPATIBILIDADE
+
+    const conteudoMaisCompativel = () => { 
+        console.log(`=============== REL. PRINCIPAL RECOMENDAÇÃO ===============`);
+        console.log(`De: ${usuario.nome.toUpperCase()}\n===========================================================`);
+
+        // Encontrar maior percentual compatibilidade - reduce
+        const maiorPercentual = compatilibidade().reduce((max,item) =>{
+            if(Number(item.compatibilidade) > Number(max.compatibilidade)){
+                return Number(item.compatibilidade);        
+            } 
+            return max;
+        });
+        //console.log(maiorPercentual);
+        // Filtrar conteudos no maior % (filter)
+        const conteudoMaiorPercentual = compatilibidade().filter((item) => {
+            return Number(item.compatibilidade) === maiorPercentual;
+        });
+        // Critério final desempate por número de gêneros
+        const conteudoMaiorAderencia = conteudoMaiorPercentual.reduce((max, item) => {
+            return item.numeroGeneros > max.numeroGeneros ? item : max;
+        });
+        console.log(`${conteudoMaiorAderencia.titulo} (${conteudoMaiorAderencia.tipo})`);
+        console.log(`Compatibilidade: ${conteudoMaiorAderencia.compatibilidade}%`);
+        console.log(`-----------------------------------------------------------`);
+        //return conteudoMaiorAderencia;
+    };
+    //conteudoMaisCompativel();
