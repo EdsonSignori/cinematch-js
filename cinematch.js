@@ -192,3 +192,49 @@ const prompt = require("prompt-sync")();
         //return conteudoMaiorAderencia;
     };
     //conteudoMaisCompativel();
+
+// RF07 - GERAR UMA RECOMENDAÇÃO PERSONALIZADA 
+
+    const recomendacaoPersonalizada = () => {
+        // Filtra os conteúdos com gêneros não explorados > 0 
+        const filtraNaoExplorados = compatilibidade().filter((item) => {
+            return item.generosNaoExplorados.length > 0;
+        });
+        //console.log(filtraNaoExplorados);  
+        // Cria array de conteúdo das recomendaões  
+        const conteudoRecomendacoes = filtraNaoExplorados.map((item) => {
+            return {
+                    id: item.id,
+                    titulo: item.titulo,
+                    generosRecomendar: item.generosNaoExplorados.length != 0 ? item.generosNaoExplorados.slice() : 0
+            };
+        });
+        //console.log(recomendaGeneros);
+        // Cria array com gênero(s) do objeto usuário (perfil)
+        const generosPerfil = {generosFavoritos: usuario.generosFavoritos};
+        //console.log(generosPerfil);
+        // Separa o conteúdo a recomendar
+        const recomendacaoAtual = conteudoRecomendacoes.shift();
+        //console.log(recomendacaoAtual);
+        // Separa o gênero do conteúdo a recomendar
+        const generoRecomendar = recomendacaoAtual.generosRecomendar.shift()
+        //console.log(generoRecomendar);
+        // Separa o gênero favorito do perfil
+        const generoPerfil = generosPerfil.generosFavoritos.shift();
+        //console.log(generoPerfil);
+        //console.log(generosPerfil);
+
+        console.log(`================== RECOMENDAÇÃO PERSONALIZADA ==================`);
+        console.log(`Para: ${usuario.nome.toUpperCase()}\n===============================================================`);
+        console.log(`Você já curte ${generoPerfil.toUpperCase()} — que tal arriscar um pouco de ${generoRecomendar.toUpperCase()}?`);
+        console.log(`"${recomendacaoAtual.titulo.toUpperCase()}" pode ser sua próxima opção de título!`);
+        
+        //console.log(recomendacaoAtual);
+        if (recomendacaoAtual.generosRecomendar.length > 0) {
+            conteudoRecomendacoes.push(recomendacaoAtual);
+        };
+        generosPerfil.generosFavoritos.push(generoPerfil);
+        //console.log(generosPerfil)
+        //console.log(conteudoRecomendacoes);
+    };
+    //recomendacaoPersonalizada();
