@@ -133,7 +133,7 @@ const prompt = require("prompt-sync")();
         const listarCompatibilidade = compatilibidade().forEach((item, i) => {
                 console.log(`Título: ${item.titulo}`);
                 console.log(`Tipo: ${item.tipo}`);
-                console.log(`Compatibilidade: ${item.compatibilidade.toFixed(2)}%`);
+                console.log(`Compatibilidade: ${item.compatibilidade}%`);
                 console.log(`Gêneros em comum: ${item.generosComum}`);
                 console.log(`Gêneros não explorados: ${item.generosNaoExplorados}`);
                 console.log(`Classificação: ${item.classificacao}`);
@@ -168,22 +168,26 @@ const prompt = require("prompt-sync")();
 
         // Encontrar maior percentual compatibilidade - reduce
         const maiorPercentual = compatilibidade().reduce((max,item) =>{
-            if(Number(item.compatibilidade) > Number(max.compatibilidade)){
+            if(Number(item.compatibilidade) >= Number(max.compatibilidade)){
                 return Number(item.compatibilidade);        
             } 
             return max;
         });
         //console.log(maiorPercentual);
-        // Filtrar conteudos no maior % (filter)
-        const conteudoMaiorPercentual = compatilibidade().filter((item) => {
-            return Number(item.compatibilidade) === maiorPercentual;
-        });
-        // Critério final desempate por número de gêneros
-        const conteudoMaiorAderencia = conteudoMaiorPercentual.reduce((max, item) => {
-            return item.numeroGeneros > max.numeroGeneros ? item : max;
-        });
-        console.log(`${conteudoMaiorAderencia.titulo} (${conteudoMaiorAderencia.tipo})`);
-        console.log(`Compatibilidade: ${conteudoMaiorAderencia.compatibilidade}%`);
+        if (maiorPercentual > 0 ) {
+            // Filtrar conteudos no maior % (filter)
+            const conteudoMaiorPercentual = compatilibidade().filter((item) => {
+                return Number(item.compatibilidade) === maiorPercentual;
+            });
+            // Critério final desempate por número de gêneros
+            const conteudoMaiorAderencia = conteudoMaiorPercentual.reduce((max, item) => {
+                return item.numeroGeneros >= max.numeroGeneros ? item : max;
+            });
+            console.log(`${conteudoMaiorAderencia.titulo} (${conteudoMaiorAderencia.tipo})`);
+            console.log(`Compatibilidade: ${conteudoMaiorAderencia.compatibilidade}%`);
+        } else {
+            console.log(`Não há recomendação ao perfil, verifique para sugerir!`);
+        };
         console.log(`-----------------------------------------------------------`);
         //return conteudoMaiorAderencia;
     };
