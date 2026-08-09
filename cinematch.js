@@ -13,7 +13,7 @@ const prompt = require("prompt-sync")();
         //console.log(typeof usuario.nome.trim());
         campoObrigatorio = ((usuario.nome.trim() === '' || usuario.generosFavoritos.every(g => g === '')) ?  console.log(`Obrigatório preencher seu nome e ao menos um gênero que gosta!`) : 'OK');   
     } while( campoObrigatorio != 'OK');
-    // console.log(usuario);
+    //console.log(usuario);
 
 // RF02 - CATALOGO DE CONTEUDOS 
     // CLASSES
@@ -192,7 +192,7 @@ const prompt = require("prompt-sync")();
         //return conteudoMaiorAderencia;
     };
     //conteudoMaisCompativel();
-
+ 
 // RF07 - GERAR UMA RECOMENDAÇÃO PERSONALIZADA 
 
     const recomendacaoPersonalizada = () => {
@@ -226,9 +226,23 @@ const prompt = require("prompt-sync")();
 
         console.log(`================== RECOMENDAÇÃO PERSONALIZADA ==================`);
         console.log(`Para: ${usuario.nome.toUpperCase()}\n===============================================================`);
-        console.log(`Você já curte ${generoPerfil.toUpperCase()} — que tal arriscar um pouco de ${generoRecomendar.toUpperCase()}?`);
+        console.log(`Você já curte 👍 ${generoPerfil.toUpperCase()} — que tal arriscar um pouco de ${generoRecomendar.toUpperCase()}?`);
         console.log(`"${recomendacaoAtual.titulo.toUpperCase()}" pode ser sua próxima opção de título!`);
-        
+        // RF13 - Função Closure
+        // Contador de recomendações    
+            const contaRecomendacoes = () => {
+                let contador = 0;
+                return () => {
+                    contador++;
+                    console.log(`===============================================================`);
+                    console.log(`❤️  Recomendação Nr.: ${contador}`);
+                };
+
+            };
+        const conta = contaRecomendacoes();
+        conta();
+        console.log(`===============================================================`);
+
         //console.log(recomendacaoAtual);
         if (recomendacaoAtual.generosRecomendar.length > 0) {
             conteudoRecomendacoes.push(recomendacaoAtual);
@@ -237,4 +251,33 @@ const prompt = require("prompt-sync")();
         //console.log(generosPerfil)
         //console.log(conteudoRecomendacoes);
     };
-    //recomendacaoPersonalizada();
+    recomendacaoPersonalizada();
+
+// RF08 – Usar métodos de array - OK
+    // Usar pelo menos 3 métodos de array entre: map; filter; find; every; reduce
+        // recomendacaoPersonalizada() // Função usou 2 métodos map e filter
+        // conteudoMaisCompativel() // Função usou 2 métodos reduce e filter
+
+// RF09 - Criar classe Conteudo - OK
+    //catalogo.forEach((conteudo) => {conteudo.exibirDados();});
+    //catalogo.forEach((conteudo) => { if (conteudo instanceof Serie) {conteudo.exibirDadosSerie();}});
+    //catalogo.forEach((conteudo) => { if (conteudo instanceof Filme) {conteudo.exibirDados();}});
+
+// RF10 – Usar herança - OK
+    // Classes Filme e Serie.
+
+// RF11 – Demonstrar uso do this - OK
+    // Os métodos das classes Conteudo e Serie, usam.
+    
+// RF12 – Usar callback 
+    // Função Finalizar APP - Function tradicional
+    function finalizarApp(nomeUsuario, fnMensagem){
+        console.log(`================== CINEMATCH JS - FINALIZADO ===================`);
+        fnMensagem(nomeUsuario);
+        console.log(`================================================================`);
+    };
+    // Função Mensagem Final - Arrow Function
+    const mensagemFinal = (nome) => {
+         console.log(`${nome.toUpperCase()}, aproveite sua maratona! Bom streaming.`); 
+    }; 
+    //finalizarApp(usuario.nome, mensagemFinal);
