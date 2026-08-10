@@ -2,7 +2,8 @@ const prompt = require("prompt-sync")();
 
 // RF01 - PERFIL INTERATIVO PESSOA USUARIA
     let usuario;
-    let campoObrigatorio = ''; 
+    let campoObrigatorio = '';
+        
     do {
         usuario = {
             nome: prompt("Informe seu Nome(*): "), 
@@ -14,6 +15,15 @@ const prompt = require("prompt-sync")();
         campoObrigatorio = ((usuario.nome.trim() === '' || usuario.generosFavoritos.every(g => g === '')) ?  console.log(`Obrigatório preencher seu nome e ao menos um gênero que gosta!`) : 'OK');   
     } while( campoObrigatorio != 'OK');
     //console.log(usuario);
+
+    // RF15 - OPÇÃO DO MENU - 1
+    const exibirPerfil = () => {
+        console.log(`=================== PERFIL DO USUÁRIO ===================`);
+        console.log(`Nome: ${usuario.nome.toUpperCase()}`);
+        console.log(`Idade: ${usuario.idade}`);
+        console.log(`Gêneros Favoritos: ${usuario.generosFavoritos}`);
+        console.log(`=========================================================`);
+    };
 
 // RF02 - CATALOGO DE CONTEUDOS 
     // CLASSES
@@ -27,7 +37,7 @@ const prompt = require("prompt-sync")();
                 this.duracaoMinutos = duracaoMinutos;
             }
             exibirDados(){
-                console.log(`Título: ${this.titulo} - Tipo: ${this.tipo} - Gênero(s): ${this.generos} - Duração em Minutos: ${this.duracaoMinutos}`);
+                return `Titulo: ${this.titulo} | Tipo: ${this.tipo} | Gêneros: ${this.generos} | Duração Minutos: ${this.duracaoMinutos}`;
             }
         };
         // Filha(s)
@@ -36,6 +46,10 @@ const prompt = require("prompt-sync")();
             constructor(id,titulo,tipo,generos,duracaoMinutos) {
             super(id,titulo,"Filme",generos,duracaoMinutos);
             }
+            exibirDados(){
+                console.log(super.exibirDados());
+                console.log(`---------------------------------------------------------------------------------------------------------------------------`);
+            }
         };
         // Série
         class Serie extends Conteudo {
@@ -43,9 +57,9 @@ const prompt = require("prompt-sync")();
             super(id,titulo,"Série",generos,duracaoMinutos);
             this.temporadas = temporadas;
             }
-            exibirDadosSerie(){
-            this.exibirDados();
-                console.log(` - Temporada(s): ${this.temporadas}`);
+            exibirDados(){
+                console.log(`${super.exibirDados()} | Temporadas(s): ${this.temporadas}`);
+                console.log(`---------------------------------------------------------------------------------------------------------------------------`); 
             }
         };
     // ARRAY CATALOGO DE CONTEUDOS
@@ -65,86 +79,111 @@ const prompt = require("prompt-sync")();
             new Serie( 14, "Ritmo das Ruas", this.tipo, ["Musical", "Comédia"], 134, 7 ) 
         ];
         //console.log(catalogo);
+    
+    // RF15 - OPÇÃO MENU - 2
+        // RF14.1 - Função Promise    
+        function carregarCatalogo(){
+            return new Promise((resolve) => {
+                setTimeout(() => { 
+                    resolve(catalogo);      
+                }, 5000);       
+            });
+        };
+        
+        // RF14.1 - Função async/await      
+        const exibirCatalogo = async () => {
+            console.log(`=========================================================`);
+            console.log(`>>>>>>>>>>>>>> CARREGANDO CATÁLOGO COMPLETO >>>>>>>>>>>>>`);
+            const catalogoCarregado = await carregarCatalogo()
+            console.log(`===========================================================================================================================`);
+            console.log(`                                                  CATÁLOGO COMPLETO                                                      `);
+            console.log(`===========================================================================================================================\n`);
+            catalogoCarregado.forEach((conteudo) => {conteudo.exibirDados();});
+            console.log("FINALIZADO CARREGAMENTO COM SUCESSO!");
+            console.log(`===========================================================================================================================`);
+        };    
 
 // RF03 - CALCULAR COMPATIBILIDADE CONTEUDO
 
     // ARRAY DISTINTO DE GENEROS DE TODO O CATALOGO
-        const generosDistintos = catalogo.reduce((agrupador, item) => {
-            item.generos.forEach(genero => {
-                if (!agrupador.includes(genero)) {
-                    agrupador.push(genero);
-                }
-            });
-            return agrupador;
-        },[]);
-    
+    const generosDistintos = catalogo.reduce((agrupador, item) => {
+        item.generos.forEach(genero => {
+            if (!agrupador.includes(genero)) {
+                agrupador.push(genero);
+            }
+        });
+        return agrupador;
+    },[]);
+
     // NORMALIZANDO GENERO USUARIO PARA COMPATIBILIDADE.
-        //console.log(usuario);
         const generosUsuario = (usuario.generosFavoritos).map((item) => {
             return item.toUpperCase();
         });
-
+        //console.log(generosUsuario);
     // FUNCAO COMPATIBILIDADE 
-    const compatilibidade = () => {  
-    // ARRAY DA COMPATIBILIDADE DO CONTEUDO
-        const compatilibidadeConteudo = catalogo.map((item) => {
-            
-            // Generos em Comum
-            const generosComum = item.generos.filter((genero) => {
-                return generosUsuario.includes(genero.toUpperCase());
-            });
-            // Generos inexplorados
-            const generosNaoExplorados = item.generos.filter((genero) => {
-                return !generosUsuario.includes(genero.toUpperCase());
-            });
-            // Percentual compatibilidade
-            const percentualCompatibilidade = Number((generosComum.length / item.generos.length) * 100).toFixed(2);
+        const compatilibidade = () => {  
+        // ARRAY DA COMPATIBILIDADE DO CONTEUDO
+            const compatilibidadeConteudo = catalogo.map((item) => {
+                
+                // Generos em Comum
+                const generosComum = item.generos.filter((genero) => {
+                    return generosUsuario.includes(genero.toUpperCase());
+                });
+                
+                // Generos inexplorados
+                const generosNaoExplorados = item.generos.filter((genero) => {
+                    return !generosUsuario.includes(genero.toUpperCase());
+                });
+                // Percentual compatibilidade
+                const percentualCompatibilidade = Number((generosComum.length / item.generos.length) * 100).toFixed(2);
 
-            // RF04 - CLASSIFICAR A COMPATIBILIDADE
-            let classificacao;
-            
-            if (percentualCompatibilidade >= 0 && percentualCompatibilidade <= 49) {
-                classificacao = "Baixa afinidade";
-            }else if (percentualCompatibilidade >= 50 && percentualCompatibilidade <= 79) {
-                classificacao = "Média afinidade";
-            } else {
-                classificacao = "Alta afinidade";
-            };
-            //console.log(generosComum.length);
-            return {
-                id: item.id,
-                titulo: item.titulo,
-                tipo: item.tipo,
-                compatibilidade: percentualCompatibilidade,
-                numeroGeneros: item.generos.length,
-                generosComum: generosComum.length === 0 ? "Não" : generosComum,
-                generosNaoExplorados: generosNaoExplorados.length === 0 ? "Não" : generosNaoExplorados,
-                classificacao
-            };
-        });
-        //console.log(compatilibidadeConteudo);
-        return compatilibidadeConteudo;
-    };
-    //compatilibidade();
-    // MOSTRAR O RESULTADO FORMATADO
-    const relatorioCompatibilidade = () => {
-        console.log(`============= REL. COMPATIBILIDADE CONTEÚDO =============`);
-        console.log(`De: ${usuario.nome.toUpperCase()}\n=========================================================`);
-        const listarCompatibilidade = compatilibidade().forEach((item, i) => {
-                console.log(`Título: ${item.titulo}`);
-                console.log(`Tipo: ${item.tipo}`);
-                console.log(`Compatibilidade: ${item.compatibilidade}%`);
-                console.log(`Gêneros em comum: ${item.generosComum}`);
-                console.log(`Gêneros não explorados: ${item.generosNaoExplorados}`);
-                console.log(`Classificação: ${item.classificacao}`);
-                console.log(`---------------------------------------------------------`);
-        });
-        return listarCompatibilidade;
-    };
-    //relatorioCompatibilidade();
+                // RF04 - CLASSIFICAR A COMPATIBILIDADE
+                let classificacao;
+                
+                if (percentualCompatibilidade >= 0 && percentualCompatibilidade <= 49) {
+                    classificacao = "Baixa afinidade";
+                }else if (percentualCompatibilidade >= 50 && percentualCompatibilidade <= 79) {
+                    classificacao = "Média afinidade";
+                } else {
+                    classificacao = "Alta afinidade";
+                };
+                //console.log(generosComum.length);
+                return {
+                    id: item.id,
+                    titulo: item.titulo,
+                    tipo: item.tipo,
+                    compatibilidade: percentualCompatibilidade,
+                    numeroGeneros: item.generos.length,
+                    generosComum: generosComum.length === 0 ? "Não" : generosComum,
+                    generosNaoExplorados: generosNaoExplorados.length === 0 ? "Não" : generosNaoExplorados,
+                    classificacao
+                };
+            });
+            //console.log(compatilibidadeConteudo);
+            return compatilibidadeConteudo;
+        };
+        //compatilibidade();
+        
+        // EXECUTAR COMPATIBILIDADE E MOSTRAR O RESULTADO FORMATADO
+        const calcularCompatilidades = () => {
+            console.log(`============= REL. COMPATIBILIDADE CONTEÚDO =============`);
+            console.log(`De: ${usuario.nome.toUpperCase()}\n=========================================================`);
+            const listarCompatibilidade = compatilibidade().forEach((item, i) => {
+                    console.log(`Título: ${item.titulo}`);
+                    console.log(`Tipo: ${item.tipo}`);
+                    console.log(`Compatibilidade: ${item.compatibilidade}%`);
+                    console.log(`Gêneros em comum: ${item.generosComum}`);
+                    console.log(`Gêneros não explorados: ${item.generosNaoExplorados}`);
+                    console.log(`Classificação: ${item.classificacao}`);
+                    console.log(`---------------------------------------------------------`);
+            });
+            return listarCompatibilidade;
+        };
+        //calcularCompatilidades();
+ 
     
 // RF05 - LISTAR HABILIDADES FALTANTES
-    const relatorioNaoExplorados = () => {
+    const exibirInexplorados = () => {
         console.log(`=============== REL. GÊNEROS NÃO EXPLORADOS ===============`);
         console.log(`De: ${usuario.nome.toUpperCase()}\n===========================================================`);
         const listarNaoExplorados = compatilibidade().forEach((item) => {
@@ -162,18 +201,19 @@ const prompt = require("prompt-sync")();
 
 //RF06 - ENCONTRAR VAGA COM MAIOR COMPATIBILIDADE
 
-    const conteudoMaisCompativel = () => { 
+    const exibirRecomendacaoPrincipal = () => { 
         console.log(`=============== REL. PRINCIPAL RECOMENDAÇÃO ===============`);
         console.log(`De: ${usuario.nome.toUpperCase()}\n===========================================================`);
-
+        // Passa o resultado da chamada
+        compatilibidade();
         // Encontrar maior percentual compatibilidade - reduce
         const maiorPercentual = compatilibidade().reduce((max,item) =>{
-            if(Number(item.compatibilidade) >= Number(max.compatibilidade)){
+            if(Number(item.compatibilidade) > max){
                 return Number(item.compatibilidade);        
             } 
             return max;
-        });
-        //console.log(maiorPercentual);
+        },0);
+        console.log(maiorPercentual);
         if (maiorPercentual > 0 ) {
             // Filtrar conteudos no maior % (filter)
             const conteudoMaiorPercentual = compatilibidade().filter((item) => {
@@ -191,58 +231,58 @@ const prompt = require("prompt-sync")();
         console.log(`-----------------------------------------------------------`);
         //return conteudoMaiorAderencia;
     };
-    //conteudoMaisCompativel();
+    //exibirRecomendacaoPrincipal();
  
 // RF07 - GERAR UMA RECOMENDAÇÃO PERSONALIZADA 
 
-    const recomendacaoPersonalizada = () => {
-        // Filtra os conteúdos com gêneros não explorados > 0 
-        const filtraNaoExplorados = compatilibidade().filter((item) => {
-            return item.generosNaoExplorados.length > 0;
-        });
-        //console.log(filtraNaoExplorados);  
-        // Cria array de conteúdo das recomendaões  
-        const conteudoRecomendacoes = filtraNaoExplorados.map((item) => {
-            return {
-                    id: item.id,
-                    titulo: item.titulo,
-                    generosRecomendar: item.generosNaoExplorados.length != 0 ? item.generosNaoExplorados.slice() : 0
-            };
-        });
-        //console.log(recomendaGeneros);
-        // Cria array com gênero(s) do objeto usuário (perfil)
-        const generosPerfil = {generosFavoritos: usuario.generosFavoritos};
-        //console.log(generosPerfil);
+    
+
+    let conteudoRecomendacoes = null; 
+    
+    // Cria uma cópia dos gênero(s) favoritos do objeto usuário (perfil)
+    const generosPerfil = {
+        generosFavoritos: usuario.generosFavoritos.slice()
+    };
+
+    // RF07 - GERAR UMA RECOMENDAÇÃO PERSONALIZADA 
+    const gerarRecomendacaoPersonalizada = () => {
+
+        // Cria array na primeira execução apenas 
+        if (conteudoRecomendacoes === null || conteudoRecomendacoes.length === 0) {
+            // Filtra os conteúdos com gêneros não explorados > 0 
+            const filtraNaoExplorados = compatilibidade().filter((item) => {
+                return item.generosNaoExplorados.length > 0 && item.generosNaoExplorados != 'Não';
+            });
+            //console.log(filtraNaoExplorados);     
+            conteudoRecomendacoes = filtraNaoExplorados.map((item) => {
+                return {
+                        id: item.id,
+                        titulo: item.titulo,
+                        generosRecomendar: item.generosNaoExplorados.length != 0 ? item.generosNaoExplorados.slice() : 0
+                };
+            });
+        };        
+        //console.log(conteudoRecomendacoes);
+    
         // Separa o conteúdo a recomendar
         const recomendacaoAtual = conteudoRecomendacoes.shift();
         //console.log(recomendacaoAtual);
+
         // Separa o gênero do conteúdo a recomendar
-        const generoRecomendar = recomendacaoAtual.generosRecomendar.shift()
+        const generoRecomendar = recomendacaoAtual.generosRecomendar.shift()  
         //console.log(generoRecomendar);
+
         // Separa o gênero favorito do perfil
         const generoPerfil = generosPerfil.generosFavoritos.shift();
         //console.log(generoPerfil);
-        //console.log(generosPerfil);
-
+            
         console.log(`================== RECOMENDAÇÃO PERSONALIZADA ==================`);
         console.log(`Para: ${usuario.nome.toUpperCase()}\n===============================================================`);
         console.log(`Você já curte 👍 ${generoPerfil.toUpperCase()} — que tal arriscar um pouco de ${generoRecomendar.toUpperCase()}?`);
         console.log(`"${recomendacaoAtual.titulo.toUpperCase()}" pode ser sua próxima opção de título!`);
-        // RF13 - Função Closure
-        // Contador de recomendações    
-            const contaRecomendacoes = () => {
-                let contador = 0;
-                return () => {
-                    contador++;
-                    console.log(`===============================================================`);
-                    console.log(`❤️  Recomendação Nr.: ${contador}`);
-                };
-
-            };
-        const conta = contaRecomendacoes();
+        
         conta();
         console.log(`===============================================================`);
-
         //console.log(recomendacaoAtual);
         if (recomendacaoAtual.generosRecomendar.length > 0) {
             conteudoRecomendacoes.push(recomendacaoAtual);
@@ -251,7 +291,7 @@ const prompt = require("prompt-sync")();
         //console.log(generosPerfil)
         //console.log(conteudoRecomendacoes);
     };
-    recomendacaoPersonalizada();
+    //gerarRecomendacaoPersonalizada();
 
 // RF08 – Usar métodos de array - OK
     // Usar pelo menos 3 métodos de array entre: map; filter; find; every; reduce
@@ -268,16 +308,77 @@ const prompt = require("prompt-sync")();
 
 // RF11 – Demonstrar uso do this - OK
     // Os métodos das classes Conteudo e Serie, usam.
-    
+
 // RF12 – Usar callback 
     // Função Finalizar APP - Function tradicional
     function finalizarApp(nomeUsuario, fnMensagem){
-        console.log(`================== CINEMATCH JS - FINALIZADO ===================`);
+        console.log(`====================== CINEMATCH JS - FINALIZADO ========================`);
         fnMensagem(nomeUsuario);
-        console.log(`================================================================`);
+        console.log(`=========================================================================`);
     };
     // Função Mensagem Final - Arrow Function
     const mensagemFinal = (nome) => {
          console.log(`${nome.toUpperCase()}, aproveite sua maratona! Bom streaming.`); 
     }; 
     //finalizarApp(usuario.nome, mensagemFinal);
+
+    // RF13 - Função Closure
+        // Contador de recomendações    
+        const contaRecomendacoes = () => {
+            let contador = 0;
+            return () => {
+                contador++;
+                console.log(`===============================================================`);
+                console.log(`❤️  Recomendação Nr.: ${contador}`);
+            };
+
+        };
+        // Cria a closure
+        const conta = contaRecomendacoes();
+// RF15 – CRIAR UM MENU INTERATIVO COM OPÇÕES
+// Função sistema switch case opções menu
+async function menuOpcoes(){
+    let opcaoMenu = 0;
+
+    console.log(`================== CINEMATCH JS - APP ===================`);
+    do {
+        console.log(`==================== MENU PRINCIPAL =====================`);
+        console.log("1 - Ver Meu Perfil");
+        console.log("2 - Ver Catálogo Completo");
+        console.log("3 - Calcular Compatibilidade por Todo Conteúdo");
+        console.log("4 - Ver Conteúdo Mais Recomendado");
+        console.log("5 - Ver Conteúdo Inexplorado");
+        console.log("6 - Ver Recomendação Personalizada");
+        console.log("7 - Sair");
+
+        opcaoMenu = Number(prompt("Escolha uma opção pelo número: "));
+        
+		switch (opcaoMenu) {
+			case 1:
+				exibirPerfil();
+				break;
+			case 2:
+				const catalogoCompleto = await exibirCatalogo();
+				break;
+			case 3:
+                calcularCompatilidades();
+				break;
+			case 4:
+                exibirRecomendacaoPrincipal();
+				break;
+            case 5: 
+                exibirInexplorados();
+                break;
+            case 6:
+                gerarRecomendacaoPersonalizada();
+                break;
+			case 7:
+                finalizarApp(usuario.nome, mensagemFinal)
+				break;
+			default: 
+				console.log(`Opção ${opcaoMenu} é inválida, tente novamente!`)
+		};
+    } while (opcaoMenu !== 7);
+};
+
+menuOpcoes();
