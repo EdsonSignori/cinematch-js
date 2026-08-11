@@ -4,7 +4,7 @@
   "description": "Aplicação JavaScript executada com Node.js.",
   "main": "cinematch.js",
   "scripts": {
-    "start": "chcp 65001>nul && node ../dev/cinematchDev.js"
+    "start": "chcp 65001>nul && node cinematch.js"
   },
   "author": "Edson A.",
   "license": "MIT"

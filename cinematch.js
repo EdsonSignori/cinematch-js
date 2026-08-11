@@ -3,7 +3,8 @@ const prompt = require("prompt-sync")();
 // RF01 - PERFIL INTERATIVO PESSOA USUARIA
     let usuario;
     let campoObrigatorio = '';
-        
+    console.log(`====================== CINEMATCH JS - INICIADO ========================`);
+    console.log(`====================== DADOS PARA PERFIL ==============================`);     
     do {
         usuario = {
             nome: prompt("Informe seu Nome(*): "), 
